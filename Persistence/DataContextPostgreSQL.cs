@@ -1,16 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Persistence;
-
-public class DataContextPostgreSQL : DataContext 
+namespace Persistence
 {
-    public DataContextPostgreSQL(DbContextOptions options) : base(options)
+    public class DataContextPostgreSQL : DataContext
     {
-        
-    }
 
-    protected void onModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+        //PostGreSQL Data Context
+        public DataContextPostgreSQL(DbContextOptions<DataContextPostgreSQL> options) : base(options)
+        {
+            
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

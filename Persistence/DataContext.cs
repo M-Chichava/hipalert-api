@@ -10,7 +10,7 @@ public class DataContext : IdentityDbContext<AppUser>
     {
         
     }
-
+    
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Allergy> Allergies { get; set; }
@@ -27,5 +27,13 @@ public class DataContext : IdentityDbContext<AppUser>
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Surgery> Surgeries { get; set; }
     public DbSet<TreatmentHistory> TreatmentHistories { get; set; }
-    
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Patient>()
+            .HasOne(p => p.MedicalHistory)
+            .WithOne(mh => mh.Patient)
+            .HasForeignKey<MedicalHistory>(mh => mh.PatientId);
+        base.OnModelCreating(builder);
+    }
+
 }

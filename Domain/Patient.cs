@@ -8,7 +8,10 @@ public class Patient
     public string Gender { get; set; }
     public string Contact { get; set; }
     public Address Address { get; set; }
+
+    public int MedicalHistoryId { get; set; }
     public MedicalHistory MedicalHistory { get; set; }
+
     public List<Allergy> Allergies { get; set; }
     public List<Medication> PrescribedMedications { get; set; }
 }
