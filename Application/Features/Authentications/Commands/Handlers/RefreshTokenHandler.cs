@@ -1,40 +1,34 @@
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Errors;
 using Application.Features.Auth.Commands.RequestModels;
 using Application.Interfaces;
-using Domain;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Features.Auth.Commands.Handlers
+namespace Application.Features.Authentications.Commands.Handlers
 {
     public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, LoginDTO>
     {
         private readonly IJwtGenerator _jwtGenerator;
         private readonly DataContext _context;
-        private readonly UserManager<AppUser> _userManager;
-
-        public RefreshTokenHandler(IJwtGenerator jwtGenerator, DataContext context, UserManager<AppUser> userManager)
+        public RefreshTokenHandler(IJwtGenerator jwtGenerator, DataContext context)
         {
             _jwtGenerator = jwtGenerator;
             _context = context;
-            _userManager = userManager;
         }
         public async Task<LoginDTO> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
         {
             
-            var storedToken = await _context.RefreshTokens.Include(x => x.User)
+            var storedToken = await _context.RefreshTokens
+                .Include(x => x.User)
+                .Include(x=> x.User.Role)
                 .FirstOrDefaultAsync(x => x.Token == request.RefreshToken);
             
             if (storedToken == null) throw new ApiException(HttpStatusCode.BadRequest, 
                 "Token is not valid (DB)");
-            
-            
+           
             if (storedToken.Invalidated)
                 throw new ApiException(HttpStatusCode.BadRequest, "Token is not valid (Invalidated)");
             var tokenIsRefreshTokenIsValid = await _jwtGenerator.VerifyTokenValidity(
@@ -46,7 +40,6 @@ namespace Application.Features.Auth.Commands.Handlers
                 }, storedToken);
             if (!tokenIsRefreshTokenIsValid) throw new ApiException(HttpStatusCode.BadRequest, 
                 "Token is not valid");
-
             var refreshedToken =  await _jwtGenerator.GenerateToken(storedToken.User, true);
             return new LoginDTO
             {
@@ -57,7 +50,7 @@ namespace Application.Features.Auth.Commands.Handlers
                 FullName = storedToken.User?.FullName
                 
             };
-
+            
         }
     }
 }

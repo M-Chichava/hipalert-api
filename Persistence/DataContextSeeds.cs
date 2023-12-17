@@ -640,7 +640,7 @@ namespace Persistence
                         new Role
                         {
                             Name = "Administrator",
-                            Description = "System Administrator"
+                            Description = "Administrator"
                         }
                     );
 
